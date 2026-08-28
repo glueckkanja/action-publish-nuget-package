@@ -1,45 +1,52 @@
-This file should be used to describe your reusable workflow. Please fill all of these pre-defined topics and add more content if there's more to describe.
-!PLEASE KEEP IN MIND TO CONFIGURE SUITABLE BRANCHING AND PROTECTION RULES!
+# action-publish-nuget-package
 
-## Name of The Workflow
+This reusable action simplifies the process of packaging NuGet packages and publishing them to GitHub.
 
-Describe or summarize the functionality of the workflow here.
+## Publish NuGet package workflow
+
+This GitHub composite action restores, builds, packs, and publishes a .NET project as a NuGet package to GitHub Packages. It is intended for repositories that publish packages under the owner of the repository running the workflow.
 
 ### Calling the action
 
-This example yaml code block should show the usage of you workflow in very detail. Within this code block all variables should be visible so that all functionalities will be understandable.
-
 ```yaml
 # actions.yml in a consumer repository
-name: Any Example Workflow
+name: Publish NuGet package
 
 on:
   push:
     branches:
       - main
 
+permissions:
+  contents: read
+  packages: write
+
 jobs:
-  example-workflow-run:
-    runs-on: ubuntu-latest
-    steps:
-      - name: Run Example of Workflow
-        uses: organization/example-workflow-repository@sha-hash # v1.2.3
-        with:
-          any-var: "any-value"
+  publish:
+    uses: glueckkanja/action-publish-nuget-package@sha-hash # v1.2.3
+    with:
+      dotnet_version: "10.x" # required: version of .NET SDK to use
+      project_path: "project/project.csproj" # required: path to the .NET project file
+      package_output: "project/bin/Release" # required: output directory for the NuGet package
+      package_version: "0.0.1" # required: version of the NuGet package to publish
+      assembly_version: "0.0.1" # optional: set specific assembly version
+      github_pat: your-pat-token # required: GitHub Personal Access Token with 'write:packages' scope - use GitHub's secret vars for this
 ```
 
 ### Permissions
 
-- if the workflow is in need of any declared permission, describe them here
+- `contents: read` allows `actions/checkout` to read the repository files needed to restore, build, and package the project.
+- `packages: write` allows the workflow to publish the generated NuGet package to GitHub Packages.
 
 ### Inputs
 
-- `any-variable` _(string, required)_ – describe input variables like this and list all of them
+- `dotnet_version` _(string, default: empty)_ – Version of .NET SDK to use (e.g., '10.x').
+- `project_path` _(string, default: empty)_ – Path to the .NET project file (e.g., 'project/project.csproj').
+- `package_output` _(string, default: empty)_ – Output directory for the NuGet package (e.g., 'project/bin/Release').
+- `package_version` _(string, default: empty)_ – Version of the NuGet package to publish (e.g., '1.0.0').
+- `assembly_version` _(string, default: package version)_ – (Optional) Set specific assembly version (e.g., '1.0.0'). If not set, it will default to package version. This version usually has the same value as the package_version.
+- `github_pat` _(string, default: empty)_ – GitHub Personal Access Token with 'write:packages' scope. Use it as secret variable -> `${{ secrets.GITHUB_TOKEN }}`.
 
 ### Outputs
 
-- `any-output` – show and list all values that may be provided by your workflow here
-
-### Any Other Important Topics
-
-If there's anything else you want to bring up feel free to create a more detailed description by creating more sub-headings
+This action has no outputs.
