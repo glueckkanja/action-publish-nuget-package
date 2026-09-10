@@ -39,13 +39,13 @@ runs:
       env:
         PROJECT_PATH: ${{ inputs.project_path }}
       shell: pwsh
-      run: dotnet restore "$PROJECT_PATH"
+      run: dotnet restore "$env:PROJECT_PATH"
 
     - name: Build
       env:
         PROJECT_PATH: ${{ inputs.project_path }}
       shell: pwsh
-      run: dotnet build "$PROJECT_PATH" --configuration Release --no-restore
+      run: dotnet build "$env:PROJECT_PATH" --configuration Release --no-restore
 
     - name: Create NuGet Package
       env:
@@ -54,14 +54,14 @@ runs:
         PACKAGE_VERSION: ${{ inputs.package_version }}
         ASSEMBLY_VERSION: ${{ inputs.assembly_version || inputs.package_version }}
       shell: pwsh
-      run: dotnet pack "$PROJECT_PATH" --configuration Release --no-build --output "$PACKAGE_OUTPUT" /p:PackageVersion="$PACKAGE_VERSION" /p:Version="$ASSEMBLY_VERSION" --verbosity minimal
+      run: dotnet pack "$env:PROJECT_PATH" --configuration Release --no-build --output "$env:PACKAGE_OUTPUT" /p:PackageVersion="$env:PACKAGE_VERSION" /p:Version="$env:ASSEMBLY_VERSION" --verbosity minimal
 
     - name: Add GitHub NuGet source
       env:
         NUGET_PASSWORD: ${{ inputs.github_pat }}
         REPOSITORY_OWNER: ${{ github.repository_owner }}
       shell: pwsh
-      run: dotnet nuget add source --username "$GITHUB_ACTOR" --password "$NUGET_PASSWORD" --store-password-in-clear-text --name github "https://nuget.pkg.github.com/$REPOSITORY_OWNER/index.json"
+      run: dotnet nuget add source --username "$env:GITHUB_ACTOR" --password "$env:NUGET_PASSWORD" --store-password-in-clear-text --name github "https://nuget.pkg.github.com/$env:REPOSITORY_OWNER/index.json"
 
     - name: Publish NuGet Package
       shell: pwsh
